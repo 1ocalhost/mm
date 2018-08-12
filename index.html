@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>MM</title>
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="stylesheet" href="css/style.css">
+  </head>
+  <body>
+
+    <div id="environment">
+      <div id="content">
+        <section id="first"></section>
+        <section id="second"></section>
+        <section id="third"></section>
+        <section id="fourth"></section>
+      </div>
+    </div>
+
+    <div id="scroll-proxy"></div>
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/modernizr.min.js"></script>
+    <script>
+      (function( window, document, $, Modernizr ){
+        var transformProp = Modernizr.prefixed('transform');
+
+        // Multiplane constructor
+        function Multiplane() {
+          // properties
+          this.scrolled = 0;
+          this.distance3d = 6000;
+          
+          // cache some jQuery objects
+          this.$window = $(window);
+          this.$document = $(document);
+          
+          // bind constructor to window.scroll event
+          window.addEventListener( 'scroll', this, false);
+        }
+
+        // enables constructor to be used within event listener
+        // like obj.addEventListener( eventName, this, false )
+        Multiplane.prototype.handleEvent = function( event ) {
+          if ( this[event.type] ) {
+            this[event.type](event);
+          }
+        };
+
+        Multiplane.prototype.scroll = function( event ) {
+          // normalize scroll value from 0 to 1
+          this.scrolled = this.$window.scrollTop() / ( this.$document.height() - this.$window.height() );
+          this.transformScroll( this.scrolled );
+        };
+
+        // apply transform to content based on scroll position
+        Multiplane.prototype.transformScroll = function( scroll ) {
+          var style = {};
+          style[ transformProp ] = 'translate3d( 0, 0,' + ( scroll * this.distance3d ) + 'px )';
+          this.$content.css( style );
+        };
+
+        $(function(){
+          var env = new Multiplane();
+          env.$content = $('#content');
+        });
+      })( window, window.document, window.jQuery, window.Modernizr);
+    </script>
+  </body>
+</html>
