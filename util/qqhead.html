@@ -1,0 +1,13 @@
+<title>Get QQ head photo</title>
+<input id="num" type="text" placeholder="QQ Number" style="width: 200px;" />
+<input type="button" value="Get head photo" onclick="javascript:getHead()" />
+<script>
+function getHead() {
+  var qqNum = document.getElementById('num').value;
+  if (!qqNum)
+  	return;
+
+  var url = "https://q2.qlogo.cn/headimg_dl?dst_uin={qq}&spec=0";
+  window.location.href = url.replace('{qq}', qqNum);
+}
+</script>
