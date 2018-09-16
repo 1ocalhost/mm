@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Check latest version of Chrome</title>
+  </head>
+<body>
+
+<select id="version">
+  <option value="chrome:x86-stable">Stable x86</option>
+  <option value="chrome:x64-stable">Stable x64</option>
+  <option value="chrome:x86-beta">Beta x86</option>
+  <option value="chrome:x64-beta">Beta x64</option>
+  <option value="chrome:x86-dev">Dev x86</option>
+  <option value="chrome:x64-dev">Dev x64</option>
+  <option value="canary:x86">Canary x86</option>
+  <option value="canary:x64">Canary x64</option>
+</select>
+<button id="check">Check</button>
+
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+<script>
+if (!String.prototype.format) {
+  String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) { 
+      return typeof args[number] != 'undefined'
+        ? args[number]
+        : match
+      ;
+    });
+  };
+}
+
+if (!String.prototype.toURI) {
+  String.prototype.toURI = function() {
+    return encodeURIComponent(this)
+  };
+}
+
+function proxyRequest(method, url, body) {
+  return 'https://jsonp.afeld.me/?url={0}'
+    .format('https://api.wachete.com/v1/proxy/forward?method={0}&url={1}&body={2}'
+      .format(method, url.toURI(), body.toURI())
+      .toURI())
+}
+
+function makeFetchUrl(app, ver) {
+  guid = {
+    'chrome': '{8A69D345-D564-463C-AFF1-A69D9E530F96}',
+    'canary': '{4EA16AC7-FD5A-47C3-875B-DBF4A2008C20}'
+  }
+
+  if (!guid[app]) {
+    console.log('GUID for app not found.');
+    return;
+  }
+
+  var requestXml =
+  '<request protocol="3.0">' +
+      '<os platform="win" version="6.1" sp="" arch="x64" />' +
+      '<app appid="{0}" version="" ap="{1}">' +
+          '<updatecheck />' +
+      '</app>' +
+  '</request>';
+
+  return proxyRequest('POST',
+    'https://tools.google.com/service/update2',
+    requestXml.format(guid[app], ver));
+}
+
+function fetchVersionData(app, ver, onDone) {
+  $.get(makeFetchUrl(app, ver), function(data) {
+    var xml = $(data),
+      nodeUrl = xml.find('url[codebase^="https:"]'),
+      nodePkg = xml.find('package'),
+      nodeManifest = xml.find('manifest');
+
+    onDone({
+      'version': nodeManifest.attr('version'),
+      'dl_link': nodeUrl.attr('codebase') + nodePkg.attr('name'),
+      'sha256': nodePkg.attr('hash_sha256'),
+      'size': nodePkg.attr('size')
+    });
+  });
+}
+
+var verQuering = '';
+$(document).ready(function(){
+  $('button#check').on('click', function() {
+    $(this).prop('disabled', true);
+    verQuering = $('#version option:selected').text();
+    var param = $('#version').val().split(':');
+    fetchVersionData(param[0], param[1], function(data) {
+      alert('The latest version of {0} is {1}.'
+        .format(verQuering, data.version));
+      $('button#check').prop('disabled', false);
+    });
+  });
+});
+</script>
+</body>
+</html>
