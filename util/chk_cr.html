@@ -91,6 +91,7 @@ $(document).ready(function(){
     verQuering = $('#version option:selected').text();
     var param = $('#version').val().split(':');
     fetchVersionData(param[0], param[1], function(data) {
+      console.log(data);
       alert('The latest version of {0} is {1}.'
         .format(verQuering, data.version));
       $('button#check').prop('disabled', false);
