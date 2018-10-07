@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<head>
+  <title>Hide a grayscaled image with alpha channel</title>
+</head>
+
+
+<a href="gray_alpha.demo.mp4">Demo Video</a>
+
+<table>
+  <tr>
+    <td>Show in white: <input type="file" size="65" id="selectFile1" /></td>
+    <td><button onclick="makeIt()">Make it!</button></td>
+  </tr>
+  <tr>
+    <td>Show in black: <input type="file" size="65" id="selectFile2" /></td>
+    <td>black<input id="bgcolor-slider" type="range" min="0" max="255" value="255">white</td>
+  </tr>
+</table>
+
+<br />
+
+<div id="background" style="height:0;">
+  <img id="result" />
+</div>
+
+
+<script>
+var background = document.getElementById("background");
+
+document.getElementById("bgcolor-slider").oninput = function() {
+  var x = this.value;
+  background.style.backgroundColor = 'rgb(' + [x,x,x].join(',') + ')';
+}
+
+function loadLocalImage(SelFileId, saveTo) {
+  var that = this;
+  var eleFile = document.getElementById(SelFileId);
+  var url = window.URL || window.webkitURL;
+  var img = new Image();
+  img.src = url.createObjectURL(eleFile.files[0]);
+
+  return new Promise(function(resolve, reject) {
+    img.onload = function() {
+      url.revokeObjectURL(img.src);
+      that._data || (that._data = {});
+      that._data[saveTo] = img;
+      resolve(that);
+    };
+  });
+}
+
+function makeCanvas(width, height) {
+  var can = document.createElement("canvas");
+  can.width = width;
+  can.height = height;
+  return can.getContext("2d");
+}
+
+function getImageData(img) {
+  var ctx = makeCanvas(img.width, img.height);
+  ctx.drawImage(img, 0, 0);
+  return ctx.getImageData(0, 0, img.width, img.height);
+}
+
+function getScaledImageData(img, w, h) {
+  var w1 = w,
+      h1 = h,
+      w2 = img.width,
+      h2 = img.height,
+      width = 0,
+      height = 0,
+      offX = 0,
+      offY = 0;
+
+  if (w2/h2 > w1/h1) {
+      width = w1;
+      height = width * (h2 / w2);
+      offY = (h1 - height) / 2;
+  }
+  else {
+      height = h1;
+      width = height * (w2 / h2);
+      offX = (w1 - width) / 2;
+  }
+
+  var ctx = makeCanvas(w1, h1);
+  ctx.drawImage(img, offX, offY, width, height);
+  return ctx.getImageData(0, 0, w1, h1);
+}
+
+function getPixel(i, odd, d1, d2) {
+  var d = odd ? d1 : d2;
+  var gray = (d[i] * 0.3 + d[i + 1] * 0.6 + d[i + 2] * 0.1);
+  return odd ? [0, 255 - gray] : [255, gray];
+}
+
+function mixImages(img1, img2) {
+  var width = img1.width,
+      height = img1.height,
+      imgData1 = getImageData(img1),
+      imgData2 = getScaledImageData(img2, width, height),
+      data1 = imgData1.data,
+      data2 = imgData2.data;
+
+  for (var i = 0; i < data1.length; i += 4) {
+    var index = i / 4;
+    var x = index % width;
+    var y = Math.floor(index / width);
+
+    pixel = getPixel(i, (x + y) % 2, data1, data2);
+    data1[i]     = pixel[0]; // r
+    data1[i + 1] = pixel[0]; // g
+    data1[i + 2] = pixel[0]; // b
+    data1[i + 3] = pixel[1]; // a
+  }
+
+  background.style.width = width + 'px';
+  background.style.height = height + 'px';
+  var ctx = makeCanvas(width, height);
+  ctx.putImageData(imgData1, 0, 0);
+  var result = document.getElementById("result");
+  result.src = ctx.canvas.toDataURL("image/png");
+}
+
+function makeIt() {
+  loadLocalImage("selectFile1", "img1")
+    .then(function(that) {
+      return loadLocalImage("selectFile2", "img2");
+    })
+    .then(function(that) {
+      var img1 = that._data["img1"];
+      var img2 = that._data["img2"];
+      mixImages(img1, img2);
+    })
+  ;
+}
+</script>
