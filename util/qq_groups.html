@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>QQ Groups</title>
+    <link href="//cdn.jsdelivr.net/npm/iview/dist/styles/iview.css" rel="stylesheet"/>
+    <style>
+#app {
+  padding: 32px;
+  width: 400px;
+  margin: 0 auto;
+}
+
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.left {
+  overflow: hidden;
+}
+
+.right {
+  float: right;
+  margin-left: 10px;
+}
+    </style>
+    <script src="//cdn.jsdelivr.net/npm/vue@2.6.6/dist/vue.min.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/iview@3.2.2/dist/iview.min.js"></script>
+  </head>
+
+  <body>
+    <div id="app">
+      <div class="right">
+        <i-button type="primary" :loading="loading" @click="toList">
+          <span v-if="!loading">List</span>
+          <span v-else>Listing...</span>
+        </i-button>
+      </div>
+
+      <div class="left">
+        <i-input v-model="qqNum" :disabled="loading" placeholder="QQ Number" clearable>
+        </i-input>
+      </div>
+
+      <br>
+      <alert type="success" v-if="alertSuccess"><pre>{{alertSuccess}}</pre></alert>
+      <alert type="error" v-if="alertError"><pre>{{alertError}}</pre></alert>
+    </div>
+    <script src="./qq_groups.js"></script>
+  </body>
+</html>
