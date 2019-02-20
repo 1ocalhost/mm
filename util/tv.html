@@ -1,0 +1,46 @@
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>TV</title>
+    <link href="https://cdn.jsdelivr.net/npm/iview/dist/styles/iview.css" rel="stylesheet"/>
+    <link href="https://cdn.plyr.io/3.5.0/plyr.css" rel="stylesheet"/>
+    <style>
+      html {
+          background: linear-gradient(to left top,#4dc1ff,#0074b3);
+          background-attachment: fixed;
+          height: 100%;
+      }
+
+      body {
+        background-color: unset;
+      }
+
+      .header {
+        margin: 100px 0 30px 0;
+      }
+
+      #host {
+        width: 700px;
+        margin: 0 auto;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.6/dist/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/iview@3.2.2/dist/iview.min.js"></script>
+    <script src="https://cdn.plyr.io/3.5.0/plyr.js"></script>
+  </head>
+
+  <body>
+    <div id="host">
+      <div id="app" class="header">
+        <i-select v-model="curEpisode" style="width:100px" @on-change="updateVideo">
+          <i-option v-for="item in episodes" :value="item.value" :key="item.value">{{ item.label }}</i-option>
+        </i-select>
+      </div>
+      <video id="player" playsinline controls></video>
+    </div>
+    <script src="./tv.js"></script>
+  </body>
+</html>
