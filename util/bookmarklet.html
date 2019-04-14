@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bookmarklet</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.6/build/styles/atom-one-dark.min.css">
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.15.6/build/highlight.min.js"></script>
+  <style type="text/css">
+  html, body {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    font-family: 'Open Sans', 'Microsoft Yahei';
+  }
+
+  a[href] {
+    color: rgb(2, 126, 156);
+    border-bottom: 1px dashed rgb(2, 126, 156);
+    text-decoration: none;
+    transition: border-bottom .5s ease-out, color .5s ease-out;
+  }
+
+  a[href]:hover {
+    color: rgb(9, 195, 136);
+    border-bottom: 1px solid rgb(9, 195, 136);
+  }
+
+  .container {
+    min-height: 100%;
+    position: relative;
+  } 
+
+  .post {
+    margin: 0 auto;
+    padding: 30px 20px 60px 20px;
+    max-width: 700px;
+  }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="post">
+
+      <a href="#">Demo</a>
+      <pre><code class="javascript">
+  alert('this is a demo!');
+      </code></pre>
+      <br/>
+
+      <a href="#">Show QR Code</a>
+      <pre><code class="javascript">
+  window.open('https://chart.googleapis.com/chart?chs=250x250&cht=qr&choe=UTF-8&chl=' +
+    window.encodeURIComponent(window.location.href), '_blank');
+      </code></pre>
+      <br/>
+
+    </div>
+
+  </div>
+  <script>
+    var snippets = document.querySelectorAll('pre code');
+    [].forEach.call(snippets, function(s) {
+      var code = 'javascript:(function(){' + s.innerText.trim() + '})();';
+      s.parentElement.previousElementSibling.href = code;
+    });
+
+    hljs.initHighlightingOnLoad();
+  </script>
+</body>
+</html>
