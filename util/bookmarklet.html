@@ -32,7 +32,7 @@
   .container {
     min-height: 100%;
     position: relative;
-  } 
+  }
 
   .post {
     margin: 0 auto;
@@ -53,9 +53,8 @@
       <br/>
 
       <a href="#">Show QR Code</a>
-      <pre><code class="javascript">
-  window.open('https://chart.googleapis.com/chart?chs=250x250&cht=qr&choe=UTF-8&chl=' +
-    window.encodeURIComponent(window.location.href), '_blank');
+      <pre><code class="javascript" id='codeShowQrCode'>
+  // Loading...
       </code></pre>
       <br/>
 
@@ -63,13 +62,27 @@
 
   </div>
   <script>
-    var snippets = document.querySelectorAll('pre code');
-    [].forEach.call(snippets, function(s) {
-      var code = 'javascript:(function(){' + s.innerText.trim() + '})();';
-      s.parentElement.previousElementSibling.href = code;
-    });
+    hljs.initHighlightingOnLoad()
 
-    hljs.initHighlightingOnLoad();
+    function initSnippets() {
+      let snippets = document.querySelectorAll('pre code');
+      [].forEach.call(snippets, function(s) {
+        compressed = s.innerText.trim().replace(/ {2,}/g, ' ');
+        let code = 'javascript:(function(){' + compressed + '})();';
+        s.parentElement.previousElementSibling.href = code;
+      });
+
+      hljs.initHighlighting.called = false;
+      hljs.initHighlighting();
+    }
+
+    fetch('https://api.github.com/repos/1ocalhost/js_cheat/contents/show_qrcode.js')
+      .then(response => response.json())
+      .then(json => {
+        let code = atob(json['content'])
+        document.getElementById('codeShowQrCode').innerHTML = code
+      })
+      .then(() => initSnippets());
   </script>
 </body>
 </html>
